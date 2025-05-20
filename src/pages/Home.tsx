@@ -4,7 +4,7 @@ import AIPromptBox from '@/components/AIPromptBox';
 import ProjectCard from '@/components/ProjectCard';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Zap } from 'lucide-react';
+import { Zap, Code, Github, LayoutPanelLeft as Layout } from 'lucide-react';
 
 const Home = () => {
   const [activeTab, setActiveTab] = useState('projects');

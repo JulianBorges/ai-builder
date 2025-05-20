@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import DashboardSidebar from '@/components/DashboardSidebar';
 import { Textarea } from '@/components/ui/textarea';
@@ -9,7 +8,8 @@ import {
   Copy, 
   ArrowLeft, 
   ArrowRight,
-  Save
+  Save,
+  Github
 } from 'lucide-react';
 
 const Dashboard = () => {

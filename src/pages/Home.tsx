@@ -126,24 +126,24 @@ const Home = () => {
               <TabsTrigger value="projects">My Projects</TabsTrigger>
               <TabsTrigger value="suggestions">Suggestions</TabsTrigger>
             </TabsList>
+          
+            <TabsContent value="projects" className="mt-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {recentProjects.map((project, index) => (
+                  <ProjectCard key={index} {...project} />
+                ))}
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="suggestions" className="mt-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {suggestedProjects.map((project, index) => (
+                  <ProjectCard key={index} {...project} />
+                ))}
+              </div>
+            </TabsContent>
           </Tabs>
         </div>
-        
-        <TabsContent value="projects" className="mt-0">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {recentProjects.map((project, index) => (
-              <ProjectCard key={index} {...project} />
-            ))}
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="suggestions" className="mt-0">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {suggestedProjects.map((project, index) => (
-              <ProjectCard key={index} {...project} />
-            ))}
-          </div>
-        </TabsContent>
       </section>
       
       {/* CTA Section */}

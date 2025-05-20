@@ -1,24 +1,38 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { openAIService } from '@/services/openai-service';
+import { toast } from 'sonner';
 
 interface ApiKeyModalProps {
   isOpen: boolean;
   onClose: () => void;
+  defaultApiKey?: string;
 }
 
-const ApiKeyModal = ({ isOpen, onClose }: ApiKeyModalProps) => {
+const ApiKeyModal = ({ isOpen, onClose, defaultApiKey = '' }: ApiKeyModalProps) => {
   const [apiKey, setApiKey] = useState('');
+
+  useEffect(() => {
+    if (defaultApiKey) {
+      setApiKey(defaultApiKey);
+    } else {
+      const savedApiKey = localStorage.getItem('openai_api_key') || '';
+      setApiKey(savedApiKey);
+    }
+  }, [defaultApiKey, isOpen]);
 
   const handleSubmit = () => {
     if (apiKey.trim()) {
       openAIService.setApiKey(apiKey.trim());
       localStorage.setItem('openai_api_key', apiKey.trim());
+      toast.success('Chave API salva com sucesso!');
       onClose();
+    } else {
+      toast.error('Por favor, insira uma chave API válida');
     }
   };
 

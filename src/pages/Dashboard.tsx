@@ -1,4 +1,5 @@
-import { useState } from 'react';
+
+import { useState, useEffect } from 'react';
 import DashboardSidebar from '@/components/DashboardSidebar';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -9,24 +10,49 @@ import {
   ArrowLeft, 
   ArrowRight,
   Save,
-  Github
+  Github,
+  Settings
 } from 'lucide-react';
+import ApiKeyModal from '@/components/ApiKeyModal';
+import { openAIService } from '@/services/openai-service';
 
 const Dashboard = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState('editor');
   const [aiPrompt, setAiPrompt] = useState('');
+  const [aiGeneration, setAiGeneration] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [showApiKeyModal, setShowApiKeyModal] = useState(false);
 
-  const handleAISubmit = (e: React.FormEvent) => {
+  // Carregar prompt e geração anterior
+  useEffect(() => {
+    const lastPrompt = localStorage.getItem('last_prompt');
+    const lastGeneration = localStorage.getItem('last_generation');
+    
+    if (lastPrompt) setAiPrompt(lastPrompt);
+    if (lastGeneration) setAiGeneration(lastGeneration);
+  }, []);
+
+  const handleAISubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!aiPrompt.trim()) return;
     
     setIsGenerating(true);
-    // Simulate API call
-    setTimeout(() => {
+    setAiGeneration('');
+    
+    try {
+      await openAIService.generateWebsiteIdea(aiPrompt, 'gpt-4o-mini', (partialText) => {
+        setAiGeneration(partialText);
+      });
+      
+      // Atualizar o localStorage
+      localStorage.setItem('last_prompt', aiPrompt);
+      localStorage.setItem('last_generation', aiGeneration);
+    } catch (error) {
+      console.error("Erro na geração:", error);
+    } finally {
       setIsGenerating(false);
-    }, 1500);
+    }
   };
 
   const handleVersionRollback = (version: string) => {
@@ -34,26 +60,18 @@ const Dashboard = () => {
     console.log(`Rolling back to version: ${version}`);
   };
   
-  const codeExample = `// Example React component
-import React, { useState } from 'react';
+  const copyCodeToClipboard = () => {
+    navigator.clipboard.writeText(aiGeneration)
+      .then(() => {
+        console.log('Copiado para a área de transferência');
+      })
+      .catch(err => {
+        console.error('Erro ao copiar: ', err);
+      });
+  };
 
-const Counter = () => {
-  const [count, setCount] = useState(0);
-  
-  return (
-    <div className="p-4 border rounded-lg">
-      <h2 className="text-xl font-bold mb-2">Counter: {count}</h2>
-      <button 
-        className="px-4 py-2 bg-blue-500 text-white rounded"
-        onClick={() => setCount(count + 1)}
-      >
-        Increment
-      </button>
-    </div>
-  );
-};
-
-export default Counter;`;
+  const codeExample = aiGeneration || `// O código gerado pela IA aparecerá aqui.
+// Use o editor AI para gerar conteúdo.`;
 
   const historyVersions = [
     { id: '1', date: 'May 20, 2025 - 10:30 AM', changes: 'Initial layout created' },
@@ -81,9 +99,9 @@ export default Counter;`;
                 <Button 
                   variant="ghost" 
                   size="icon"
-                  onClick={() => {/* Toggle fullscreen */}}
+                  onClick={() => setShowApiKeyModal(true)}
                 >
-                  <ArrowLeft className="h-4 w-4" />
+                  <Settings className="h-4 w-4" title="Configurar API Key" />
                 </Button>
               </div>
               
@@ -96,14 +114,14 @@ export default Counter;`;
                 <TabsContent value="prompt" className="flex-1 flex flex-col space-y-4 mt-0">
                   <form onSubmit={handleAISubmit} className="flex-1 flex flex-col">
                     <Textarea
-                      placeholder="Describe the changes you want to make..."
+                      placeholder="Descreva as mudanças que você deseja fazer..."
                       className="flex-1 resize-none border-border"
                       value={aiPrompt}
                       onChange={(e) => setAiPrompt(e.target.value)}
                     />
                     <div className="mt-4 flex justify-between items-center">
                       <p className="text-xs text-muted-foreground">
-                        Be specific about what you want to change
+                        Seja específico sobre o que você deseja mudar
                       </p>
                       <Button 
                         type="submit"
@@ -111,11 +129,11 @@ export default Counter;`;
                         className="relative overflow-hidden"
                       >
                         {isGenerating ? (
-                          'Generating...'
+                          'Gerando...'
                         ) : (
                           <>
                             <Zap className="mr-2 h-4 w-4" />
-                            Generate Changes
+                            Gerar Mudanças
                           </>
                         )}
                         {isGenerating && (
@@ -153,10 +171,16 @@ export default Counter;`;
               </div>
               
               <div className="flex-1 border-t border-border p-4 bg-black/30">
-                <div className="w-full h-full rounded border border-border overflow-hidden flex items-center justify-center bg-black/50">
-                  <p className="text-muted-foreground">
-                    Preview will appear here
-                  </p>
+                <div className="w-full h-full rounded border border-border overflow-auto bg-black/50">
+                  <div className="p-4 whitespace-pre-wrap">
+                    {aiGeneration ? (
+                      <div className="text-green-400">{aiGeneration}</div>
+                    ) : (
+                      <p className="text-muted-foreground">
+                        Preview will appear here
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -166,22 +190,22 @@ export default Counter;`;
         {activeTab === 'code' && (
           <div className="p-6 h-full flex flex-col">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">Code Editor</h2>
-              <Button variant="outline" size="sm">
+              <h2 className="text-xl font-semibold">Código Gerado</h2>
+              <Button variant="outline" size="sm" onClick={copyCodeToClipboard}>
                 <Copy className="h-4 w-4 mr-2" />
-                Copy Code
+                Copiar Código
               </Button>
             </div>
             
-            <div className="flex-1 code-window overflow-auto">
-              <pre className="text-green-400">{codeExample}</pre>
+            <div className="flex-1 code-window overflow-auto bg-black/30 p-4 rounded-md">
+              <pre className="text-green-400 whitespace-pre-wrap">{codeExample}</pre>
             </div>
           </div>
         )}
         
         {activeTab === 'history' && (
           <div className="p-6 h-full">
-            <h2 className="text-xl font-semibold mb-6">Version History</h2>
+            <h2 className="text-xl font-semibold mb-6">Histórico de Versões</h2>
             
             <div className="space-y-4">
               {historyVersions.map((version) => (
@@ -209,11 +233,11 @@ export default Counter;`;
         
         {activeTab === 'settings' && (
           <div className="p-6 h-full">
-            <h2 className="text-xl font-semibold mb-6">Project Settings</h2>
+            <h2 className="text-xl font-semibold mb-6">Configurações do Projeto</h2>
             
             <div className="space-y-6 max-w-2xl">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Project Name</label>
+                <label className="text-sm font-medium">Nome do Projeto</label>
                 <input 
                   type="text" 
                   defaultValue="E-commerce Site" 
@@ -222,24 +246,41 @@ export default Counter;`;
               </div>
               
               <div className="space-y-2">
-                <label className="text-sm font-medium">Description</label>
+                <label className="text-sm font-medium">Descrição</label>
                 <Textarea 
-                  defaultValue="A modern e-commerce platform with product catalog and shopping cart" 
+                  defaultValue="Uma plataforma de e-commerce moderna com catálogo de produtos e carrinho de compras" 
                   className="w-full bg-secondary/50 border border-border"
                 />
               </div>
               
               <div className="pt-4 border-t border-border">
-                <h3 className="text-lg font-medium mb-4">GitHub Integration</h3>
+                <h3 className="text-lg font-medium mb-4">API Key da OpenAI</h3>
+                <Button 
+                  className="border-primary/30 hover:border-primary"
+                  onClick={() => setShowApiKeyModal(true)}
+                >
+                  <Settings className="mr-2 h-4 w-4" />
+                  Configurar API Key
+                </Button>
+              </div>
+
+              <div className="pt-4 border-t border-border">
+                <h3 className="text-lg font-medium mb-4">Integração com GitHub</h3>
                 <Button className="border-primary/30 hover:border-primary">
                   <Github className="mr-2 h-4 w-4" />
-                  Connect to GitHub
+                  Conectar ao GitHub
                 </Button>
               </div>
             </div>
           </div>
         )}
       </main>
+
+      <ApiKeyModal 
+        isOpen={showApiKeyModal}
+        onClose={() => setShowApiKeyModal(false)}
+        defaultApiKey={openAIService.getApiKey() || ''}
+      />
     </div>
   );
 };

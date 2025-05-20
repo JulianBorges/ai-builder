@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { Zap, MessageCircle } from 'lucide-react';
+import { Zap, MessageCircle, Settings } from 'lucide-react';
 import { openAIService, OpenAIModel } from '@/services/openai-service';
 import ApiKeyModal from './ApiKeyModal';
 
@@ -19,6 +19,7 @@ const AIPromptBox = ({ className = "", fullWidth = false }: AIPromptBoxProps) =>
   const [isGenerating, setIsGenerating] = useState(false);
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
   const [model, setModel] = useState<OpenAIModel>('gpt-4o-mini');
+  const [generatedText, setGeneratedText] = useState<string>('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,6 +27,14 @@ const AIPromptBox = ({ className = "", fullWidth = false }: AIPromptBoxProps) =>
     const savedApiKey = localStorage.getItem('openai_api_key');
     if (savedApiKey) {
       openAIService.setApiKey(savedApiKey);
+    } else {
+      // Usar a API Key fornecida ou abrir o modal
+      const apiKey = "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";
+      if (apiKey) {
+        openAIService.setApiKey(apiKey);
+        localStorage.setItem('openai_api_key', apiKey);
+        toast.success('API Key predefinida carregada com sucesso!');
+      }
     }
   }, []);
 
@@ -34,23 +43,23 @@ const AIPromptBox = ({ className = "", fullWidth = false }: AIPromptBoxProps) =>
     if (!prompt.trim()) return;
     
     // Verificar se temos a API key
-    const savedApiKey = localStorage.getItem('openai_api_key');
+    const savedApiKey = openAIService.getApiKey();
     if (!savedApiKey) {
       setShowApiKeyModal(true);
       return;
     }
     
     setIsGenerating(true);
+    setGeneratedText('');
     
     try {
-      const websiteIdea = await openAIService.generateWebsiteIdea(prompt, model);
+      await openAIService.generateWebsiteIdea(prompt, model, (partialText) => {
+        setGeneratedText(partialText);
+      });
       
       // Armazenar o prompt e a resposta no localStorage para recuperar no dashboard
       localStorage.setItem('last_prompt', prompt);
-      localStorage.setItem('last_generation', websiteIdea);
-      
-      // Limpar o prompt
-      setPrompt('');
+      localStorage.setItem('last_generation', generatedText);
       
       // Mostrar toast de sucesso
       toast.success('Site gerado com sucesso! Redirecionando para o dashboard...');
@@ -67,6 +76,10 @@ const AIPromptBox = ({ className = "", fullWidth = false }: AIPromptBoxProps) =>
     }
   };
 
+  const handleOpenApiKeySettings = () => {
+    setShowApiKeyModal(true);
+  };
+
   return (
     <>
       <Card className={`glass-card overflow-hidden ${className}`}>
@@ -80,9 +93,15 @@ const AIPromptBox = ({ className = "", fullWidth = false }: AIPromptBoxProps) =>
             />
             <div className="p-3 bg-secondary/50 flex justify-between items-center">
               <div className="flex items-center gap-2">
-                <p className="text-xs text-muted-foreground mr-4">
-                  Seja detalhado para melhores resultados
-                </p>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  type="button"
+                  onClick={handleOpenApiKeySettings}
+                  title="Configurar API Key"
+                >
+                  <Settings className="h-4 w-4" />
+                </Button>
                 <select 
                   className="text-xs bg-transparent border border-border rounded px-2 py-1"
                   value={model}
@@ -113,10 +132,22 @@ const AIPromptBox = ({ className = "", fullWidth = false }: AIPromptBoxProps) =>
           </form>
         </CardContent>
       </Card>
+
+      {generatedText && (
+        <Card className="mt-4 glass-card">
+          <CardContent className="p-4">
+            <h3 className="text-lg font-semibold mb-2">Saída em tempo real:</h3>
+            <div className="bg-black/30 p-4 rounded-md max-h-60 overflow-auto whitespace-pre-wrap">
+              {generatedText || "Aguardando geração..."}
+            </div>
+          </CardContent>
+        </Card>
+      )}
       
       <ApiKeyModal 
         isOpen={showApiKeyModal} 
         onClose={() => setShowApiKeyModal(false)} 
+        defaultApiKey={openAIService.getApiKey() || ''}
       />
     </>
   );

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import DashboardSidebar from '@/components/DashboardSidebar';
 import { Textarea } from '@/components/ui/textarea';
@@ -16,6 +15,7 @@ import {
 import ApiKeyModal from '@/components/ApiKeyModal';
 import { openAIService } from '@/services/openai-service';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import HtmlPreview from '@/components/HtmlPreview';
 
 const Dashboard = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -70,9 +70,6 @@ const Dashboard = () => {
         console.error('Erro ao copiar: ', err);
       });
   };
-
-  const codeExample = aiGeneration || `// O código gerado pela IA aparecerá aqui.
-// Use o editor AI para gerar conteúdo.`;
 
   const historyVersions = [
     { id: '1', date: 'May 20, 2025 - 10:30 AM', changes: 'Initial layout created' },
@@ -180,17 +177,17 @@ const Dashboard = () => {
                 </div>
               </div>
               
-              <div className="flex-1 border-t border-border p-4 bg-black/30">
-                <div className="w-full h-full rounded border border-border overflow-auto bg-black/50">
-                  <div className="p-4 whitespace-pre-wrap">
-                    {aiGeneration ? (
-                      <div className="text-green-400">{aiGeneration}</div>
-                    ) : (
+              <div className="flex-1 border-t border-border p-4 bg-white">
+                <div className="w-full h-full rounded border border-border overflow-auto">
+                  {aiGeneration ? (
+                    <HtmlPreview htmlContent={aiGeneration} />
+                  ) : (
+                    <div className="p-4 flex items-center justify-center h-full">
                       <p className="text-muted-foreground">
                         Preview will appear here
                       </p>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -208,7 +205,7 @@ const Dashboard = () => {
             </div>
             
             <div className="flex-1 code-window overflow-auto bg-black/30 p-4 rounded-md">
-              <pre className="text-green-400 whitespace-pre-wrap">{codeExample}</pre>
+              <pre className="text-green-400 whitespace-pre-wrap">{aiGeneration || "// O código gerado pela IA aparecerá aqui.\n// Use o editor AI para gerar conteúdo."}</pre>
             </div>
           </div>
         )}

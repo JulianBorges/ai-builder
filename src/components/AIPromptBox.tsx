@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { Zap, MessageCircle, Settings } from 'lucide-react';
 import { openAIService, OpenAIModel } from '@/services/openai-service';
 import ApiKeyModal from './ApiKeyModal';
+import HtmlPreview from './HtmlPreview';
 
 interface AIPromptBoxProps {
   className?: string;
@@ -136,9 +137,9 @@ const AIPromptBox = ({ className = "", fullWidth = false }: AIPromptBoxProps) =>
       {generatedText && (
         <Card className="mt-4 glass-card">
           <CardContent className="p-4">
-            <h3 className="text-lg font-semibold mb-2">Saída em tempo real:</h3>
-            <div className="bg-black/30 p-4 rounded-md max-h-60 overflow-auto whitespace-pre-wrap">
-              {generatedText || "Aguardando geração..."}
+            <h3 className="text-lg font-semibold mb-2">Preview do site:</h3>
+            <div className="bg-white rounded-md h-96 overflow-auto">
+              <HtmlPreview htmlContent={generatedText} />
             </div>
           </CardContent>
         </Card>

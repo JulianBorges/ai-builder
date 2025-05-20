@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import ApiKeyModal from '@/components/ApiKeyModal';
 import { openAIService } from '@/services/openai-service';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const Dashboard = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -96,13 +97,22 @@ const Dashboard = () => {
             <div className="w-full md:w-1/2 border-r border-border p-4 flex flex-col h-full">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-semibold">AI Editor</h2>
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  onClick={() => setShowApiKeyModal(true)}
-                >
-                  <Settings className="h-4 w-4" title="Configurar API Key" />
-                </Button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        onClick={() => setShowApiKeyModal(true)}
+                      >
+                        <Settings className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      Configurar API Key
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
               
               <Tabs defaultValue="prompt" className="flex-1 flex flex-col">

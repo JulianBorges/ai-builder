@@ -30,7 +30,7 @@ const AIPromptBox = ({ className = "", fullWidth = false }: AIPromptBoxProps) =>
       openAIService.setApiKey(savedApiKey);
     } else {
       // Usar a API Key fornecida ou abrir o modal
-      const apiKey = "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";
+      const apiKey = "";
       if (apiKey) {
         openAIService.setApiKey(apiKey);
         localStorage.setItem('openai_api_key', apiKey);

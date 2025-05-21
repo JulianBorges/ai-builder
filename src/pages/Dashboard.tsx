@@ -32,21 +32,18 @@ const Dashboard = () => {
     if (!prompt.trim()) return;
     setIsGenerating(true);
     try {
-      let fullCode = '';
       await openAIService.generateWebsiteIdea(prompt, 'gpt-4o-mini', (partialText) => {
-        fullCode = partialText;
         setGeneratedCode(partialText);
       });
       toast.success('Geração concluída!');
-      localStorage.setItem('last_generation', fullCode);
+      localStorage.setItem('last_generation', generatedCode);
     } catch (error) {
       console.error('Erro na geração:', error);
-      toast.error('Erro ao gerar conteúdo. Tente novamente.');
+      toast.error('Erro ao gerar conteúdo.');
     } finally {
       setIsGenerating(false);
     }
   };
-  
 
   const togglePromptPanel = () => setIsPromptPanelCollapsed(!isPromptPanelCollapsed);
   const toggleDevicePreview = () => setIsMobile(!isMobile);

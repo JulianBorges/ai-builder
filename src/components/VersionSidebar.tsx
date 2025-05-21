@@ -77,8 +77,8 @@ export const VersionSidebar = () => {
       number: 1,
       isActive: true,
       files: [
-        { name: "app/page.tsx", path: "/app/page.tsx", status: "Generated" },
-        { name: "app/layout.tsx", path: "/app/layout.tsx", status: "Generated" },
+        { name: "app/page.tsx", path: "/app/page.tsx", status: "Generated" as const },
+        { name: "app/layout.tsx", path: "/app/layout.tsx", status: "Generated" as const },
       ]
     },
     // You can add more versions here

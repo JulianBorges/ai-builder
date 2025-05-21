@@ -1,5 +1,6 @@
 
 import { toast } from "sonner";
+import { env } from "@/config/env";
 
 // Tipos para a API da OpenAI
 export interface OpenAIMessage {
@@ -18,7 +19,7 @@ export interface OpenAIResponse {
 // Opções de modelo disponíveis
 export type OpenAIModel = 'gpt-4o-mini' | 'gpt-4o';
 
-const SYSTEM_PROMPT = `You are an expert web designer specialized in creating sophisticated and elegant websites.
+const DEFAULT_SYSTEM_PROMPT = `You are an expert web designer specialized in creating sophisticated and elegant websites.
 Your task is to interpret the user's request and generate complete HTML code for the requested website.
 
 CRITICAL INSTRUCTIONS:
@@ -45,11 +46,12 @@ export class OpenAIService {
   private abortController: AbortController | null = null;
 
   constructor(apiKey?: string) {
-    this.apiKey = apiKey || localStorage.getItem('openai_api_key');
+    this.apiKey = apiKey || env.OPENAI_API_KEY || localStorage.getItem('openai_api_key');
   }
 
   setApiKey(apiKey: string) {
     this.apiKey = apiKey;
+    localStorage.setItem('openai_api_key', apiKey);
   }
 
   getApiKey(): string | null {
@@ -66,7 +68,8 @@ export class OpenAIService {
   async generateWebsiteIdea(
     prompt: string, 
     model: OpenAIModel = 'gpt-4o-mini',
-    onPartialResponse?: (text: string) => void
+    onPartialResponse?: (text: string) => void,
+    systemPrompt: string = DEFAULT_SYSTEM_PROMPT
   ): Promise<string> {
     if (!this.apiKey) {
       toast.error("API key is required. Please enter your OpenAI API key in settings.");
@@ -92,15 +95,15 @@ export class OpenAIService {
           messages: [
             {
               role: 'system',
-              content: SYSTEM_PROMPT
+              content: systemPrompt
             },
             {
               role: 'user',
               content: prompt
             }
           ],
-          max_tokens: 4000,
-          temperature: 0.7,
+          max_tokens: env.MAX_TOKENS || 4000,
+          temperature: env.DEFAULT_TEMPERATURE || 0.7,
           stream: !!onPartialResponse, // Only stream if we have a callback
         }),
         signal

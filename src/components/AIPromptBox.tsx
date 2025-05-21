@@ -9,6 +9,9 @@ import { Zap, MessageCircle, Settings } from 'lucide-react';
 import { openAIService, OpenAIModel } from '@/services/openai-service';
 import ApiKeyModal from './ApiKeyModal';
 import HtmlPreview from './HtmlPreview';
+import { runAgentPipeline } from '@/agents/orchestrator';
+import { Progress } from '@/components/ui/progress';
+import { env, validateEnv } from '@/config/env';
 
 interface AIPromptBoxProps {
   className?: string;
@@ -19,22 +22,21 @@ const AIPromptBox = ({ className = "", fullWidth = false }: AIPromptBoxProps) =>
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
-  const [model, setModel] = useState<OpenAIModel>('gpt-4o-mini');
+  const [model, setModel] = useState<OpenAIModel>(env.DEFAULT_MODEL);
   const [generatedText, setGeneratedText] = useState<string>('');
+  const [progressStep, setProgressStep] = useState<string>('');
+  const [progressPercentage, setProgressPercentage] = useState<number>(0);
   const navigate = useNavigate();
 
   useEffect(() => {
     // Verificar se já temos uma API key armazenada
-    const savedApiKey = localStorage.getItem('openai_api_key');
-    if (savedApiKey) {
-      openAIService.setApiKey(savedApiKey);
-    } else {
-      // Usar a API Key fornecida ou abrir o modal
-      const apiKey = "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";
-      if (apiKey) {
-        openAIService.setApiKey(apiKey);
-        localStorage.setItem('openai_api_key', apiKey);
-        toast.success('API Key predefinida carregada com sucesso!');
+    const isEnvValid = validateEnv();
+    if (!isEnvValid) {
+      const savedApiKey = localStorage.getItem('openai_api_key');
+      if (savedApiKey) {
+        openAIService.setApiKey(savedApiKey);
+      } else {
+        setShowApiKeyModal(true);
       }
     }
   }, []);
@@ -52,15 +54,28 @@ const AIPromptBox = ({ className = "", fullWidth = false }: AIPromptBoxProps) =>
     
     setIsGenerating(true);
     setGeneratedText('');
+    setProgressPercentage(0);
+    setProgressStep('Iniciando...');
     
     try {
-      await openAIService.generateWebsiteIdea(prompt, model, (partialText) => {
-        setGeneratedText(partialText);
-      });
+      // Use the new agent pipeline instead of direct OpenAI call
+      const html = await runAgentPipeline(
+        {
+          prompt,
+          model,
+          siteType: 'professional', // This could be detected from the prompt or set by user
+        },
+        (current, total, step) => {
+          setProgressPercentage((current / total) * 100);
+          setProgressStep(step);
+        }
+      );
+      
+      setGeneratedText(html);
       
       // Armazenar o prompt e a resposta no localStorage para recuperar no dashboard
       localStorage.setItem('last_prompt', prompt);
-      localStorage.setItem('last_generation', generatedText);
+      localStorage.setItem('last_generation', html);
       
       // Mostrar toast de sucesso
       toast.success('Site gerado com sucesso! Redirecionando para o dashboard...');
@@ -74,6 +89,11 @@ const AIPromptBox = ({ className = "", fullWidth = false }: AIPromptBoxProps) =>
       toast.error('Erro ao gerar site. Por favor, tente novamente.');
     } finally {
       setIsGenerating(false);
+      setProgressPercentage(100);
+      setTimeout(() => {
+        setProgressStep('');
+        setProgressPercentage(0);
+      }, 2000);
     }
   };
 
@@ -130,6 +150,15 @@ const AIPromptBox = ({ className = "", fullWidth = false }: AIPromptBoxProps) =>
                 )}
               </Button>
             </div>
+            {isGenerating && (
+              <div className="px-3 py-2 bg-secondary/20">
+                <div className="flex justify-between text-xs mb-1">
+                  <span>{progressStep}</span>
+                  <span>{Math.round(progressPercentage)}%</span>
+                </div>
+                <Progress value={progressPercentage} />
+              </div>
+            )}
           </form>
         </CardContent>
       </Card>

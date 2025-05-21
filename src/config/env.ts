@@ -5,7 +5,7 @@
  */
 export const env = {
   // OpenAI API Settings
-  OPENAI_API_KEY: process.env.REACT_APP_OPENAI_API_KEY || localStorage.getItem('openai_api_key') || '',
+  OPENAI_API_KEY: import.meta.env.VITE_OPENAI_API_KEY || localStorage.getItem('openai_api_key') || '',
   
   // Agent Configuration
   DEFAULT_TEMPERATURE: 0.7,

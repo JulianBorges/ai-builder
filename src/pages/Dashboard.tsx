@@ -18,17 +18,17 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 const Dashboard = () => {
   const [generatedCode, setGeneratedCode] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isPromptPanelCollapsed, setIsPromptPanelCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
   const [activePage, setActivePage] = useState('Home');
+  const [prompt, setPrompt] = useState('');
 
   useEffect(() => {
     const lastGeneration = localStorage.getItem('last_generation');
     if (lastGeneration) setGeneratedCode(lastGeneration);
   }, []);
 
-  const handleSubmitPrompt = async (prompt) => {
+  const handleSubmitPrompt = async () => {
     if (!prompt.trim()) return;
     setIsGenerating(true);
     try {
@@ -45,7 +45,6 @@ const Dashboard = () => {
     }
   };
 
-  const togglePromptPanel = () => setIsPromptPanelCollapsed(!isPromptPanelCollapsed);
   const toggleDevicePreview = () => setIsMobile(!isMobile);
 
   return (
@@ -104,30 +103,22 @@ const Dashboard = () => {
       </div>
 
       <div className="flex-1 flex overflow-hidden">
-        <div className={`border-r border-border transition-all ${isPromptPanelCollapsed ? 'w-12' : 'w-1/3 md:w-1/4'}`}>
-          {isPromptPanelCollapsed ? (
-            <div className="h-full flex items-center justify-center">
-              <Button variant="ghost" size="sm" onClick={togglePromptPanel} className="p-2">
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-          ) : (
-            <div className="h-full flex flex-col">
-              <div className="flex items-center justify-between p-2 border-b border-border">
-                <span className="text-sm font-medium">AI Prompt</span>
-                <Button variant="ghost" size="sm" onClick={togglePromptPanel}>
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-              </div>
-              <div className="flex-1 overflow-y-auto">
-                <AIPromptPanel onSubmitPrompt={handleSubmitPrompt} isGenerating={isGenerating} />
-              </div>
-            </div>
-          )}
-        </div>
         <div className="flex-1 overflow-hidden">
           <PreviewPanel generatedCode={generatedCode} isMobile={isMobile} />
         </div>
+      </div>
+
+      <div className="w-full p-4 border-t border-border flex items-center justify-center gap-2">
+        <input
+          type="text"
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          placeholder="Pergunte alguma coisa"
+          className="w-full max-w-xl px-4 py-2 rounded-full bg-muted text-foreground focus:outline-none"
+        />
+        <Button onClick={handleSubmitPrompt} disabled={isGenerating}>
+          {isGenerating ? 'Gerando...' : 'Generate'}
+        </Button>
       </div>
 
       <ApiKeyModal

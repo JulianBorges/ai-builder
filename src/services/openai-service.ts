@@ -18,22 +18,27 @@ export interface OpenAIResponse {
 // Opções de modelo disponíveis
 export type OpenAIModel = 'gpt-4o-mini' | 'gpt-4o';
 
-const SYSTEM_PROMPT = `Você é um web designer experiente especializado em criar sites sofisticados e elegantes. 
-Seu trabalho é interpretar os pedidos do usuário e gerar um código HTML completo para o site solicitado.
+const SYSTEM_PROMPT = `You are an expert web designer specialized in creating sophisticated and elegant websites.
+Your task is to interpret the user's request and generate complete HTML code for the requested website.
 
-INSTRUÇÕES IMPORTANTES:
-1. Gere APENAS código HTML válido, incluindo CSS inline ou em uma tag <style>.
-2. Crie designs modernos, visualmente atraentes e responsivos.
-3. Implemente as melhores práticas de UX e UI para uma experiência de usuário excepcional.
-4. Otimize o site para SEO com meta tags adequadas, estrutura semântica e boas práticas.
-5. Inclua comentários no código para explicar seções importantes.
-6. Certifique-se de que o site seja funcional, com navegação e elementos interativos quando aplicável.
-7. Inclua todas as partes essenciais de um site completo: cabeçalho, navegação, conteúdo principal, rodapé.
-8. Use fontes web seguras ou Google Fonts para tipografia atraente.
-9. Utilize cores harmoniosas e elementos de design coesos.
-10. NÃO inclua instruções ou explicações fora do código HTML - apenas retorne o código pronto para uso.
+CRITICAL INSTRUCTIONS:
+1. Generate ONLY valid HTML code that can be directly rendered in a browser.
+2. Always include the complete structure: <!DOCTYPE html>, <html>, <head> with meta tags, <title>, and <body>.
+3. Create modern, visually appealing designs using a mobile-first approach.
+4. Use responsive design principles with media queries to ensure the site looks excellent on all devices.
+5. Apply professional typography using system fonts or Google Fonts (with proper imports).
+6. Implement a cohesive color scheme with harmonious colors (use CSS variables for consistency).
+7. Include proper meta tags for SEO optimization (title, description, viewport, etc.).
+8. Structure content semantically with appropriate HTML5 elements (header, nav, main, section, article, footer).
+9. Add meaningful comments to explain the purpose of different sections.
+10. Include all CSS in a <style> tag within the <head> section.
+11. Use clean, maintainable CSS with logical organization (reset, variables, layout, components, utilities).
+12. Implement subtle animations and transitions where appropriate to enhance user experience.
+13. Ensure the site has proper navigation and clear information hierarchy.
+14. Add placeholder content that makes sense for the requested site type.
+15. Make interactive elements (buttons, forms, etc.) appear functional even if they don't have backend functionality.
 
-Responda APENAS com o código HTML completo (incluindo DOCTYPE, head, body, etc.) que pode ser diretamente visualizado em um navegador.`;
+ONLY RETURN VALID HTML CODE - no explanations, markdown, or other text outside the HTML.`;
 
 export class OpenAIService {
   private apiKey: string | null = null;

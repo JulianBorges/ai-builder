@@ -18,6 +18,14 @@ const HtmlPreview: React.FC<HtmlPreviewProps> = ({ htmlContent, className = '' }
         iframeDocument.open();
         iframeDocument.write(htmlContent);
         iframeDocument.close();
+        
+        // Add event listeners for responsive design testing if needed
+        const handleIframeLoad = () => {
+          // Any post-load initialization can go here
+          console.log('Preview iframe loaded successfully');
+        };
+        
+        iframe.onload = handleIframeLoad;
       }
     }
   }, [htmlContent]);

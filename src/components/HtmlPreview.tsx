@@ -16,7 +16,26 @@ const HtmlPreview: React.FC<HtmlPreviewProps> = ({ htmlContent, className = '' }
       
       if (iframeDocument) {
         iframeDocument.open();
-        iframeDocument.write(htmlContent);
+        
+        // Make sure we have a complete HTML document
+        let contentToRender = htmlContent;
+        if (!htmlContent.includes('<!DOCTYPE html>')) {
+          contentToRender = `
+            <!DOCTYPE html>
+            <html>
+              <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Preview</title>
+              </head>
+              <body>
+                ${htmlContent}
+              </body>
+            </html>
+          `;
+        }
+        
+        iframeDocument.write(contentToRender);
         iframeDocument.close();
         
         // Add event listeners for responsive design testing if needed

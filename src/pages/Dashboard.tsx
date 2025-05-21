@@ -48,7 +48,11 @@ const Dashboard = () => {
   };
   
 
+<<<<<<< HEAD
+
+=======
   const togglePromptPanel = () => setIsPromptPanelCollapsed(!isPromptPanelCollapsed);
+>>>>>>> a14dca1936ad844b1d1898209faa5e88010d8245
   const toggleDevicePreview = () => setIsMobile(!isMobile);
 
   return (

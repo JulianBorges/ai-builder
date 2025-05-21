@@ -5,7 +5,7 @@ import PreviewPanel from '@/components/PreviewPanel';
 import { openAIService } from '@/services/openai-service';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, Monitor, Smartphone, Clock } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Monitor, Smartphone, Clock, Star, Trash2, Settings, Bolt, Code } from 'lucide-react';
 import ApiKeyModal from '@/components/ApiKeyModal';
 import {
   DropdownMenu,
@@ -49,40 +49,28 @@ const Dashboard = () => {
 
   return (
     <div className="flex flex-col h-screen bg-background text-foreground overflow-hidden">
-      <ActionBar
-        projectName="Construtor IA"
-        onRefresh={() => toast.info('Atualizando preview...')}
-        onPublish={() => toast.success('Projeto publicado com sucesso!')}
-        onViewCode={() => toast.info('Abrindo código fonte...')}
-      />
-
       <div className="flex items-center justify-between px-4 py-2 border-b border-border">
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm">
-            <Clock className="h-4 w-4" />
-          </Button>
-          <span className="text-sm text-muted-foreground">Versão</span>
-        </div>
+          <Button variant="ghost" size="sm"><ChevronLeft className="h-4 w-4" /></Button>
+          <Button variant="ghost" size="sm"><ChevronRight className="h-4 w-4" /></Button>
+          <Button variant="ghost" size="sm"><Code className="h-4 w-4" /></Button>
+          <Button variant="ghost" size="sm"><Clock className="h-4 w-4" /></Button>
 
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1 border border-border rounded-md">
-            <Button
-              variant={!isMobile ? 'secondary' : 'ghost'}
-              size="sm"
-              onClick={() => setIsMobile(false)}
-              className="rounded-r-none"
-            >
+          <div className="flex items-center gap-1 border border-border rounded-md ml-4">
+            <Button variant={!isMobile ? 'secondary' : 'ghost'} size="sm" onClick={() => setIsMobile(false)} className="rounded-r-none">
               <Monitor className="h-4 w-4" />
             </Button>
-            <Button
-              variant={isMobile ? 'secondary' : 'ghost'}
-              size="sm"
-              onClick={() => setIsMobile(true)}
-              className="rounded-l-none"
-            >
+            <Button variant={isMobile ? 'secondary' : 'ghost'} size="sm" onClick={() => setIsMobile(true)} className="rounded-l-none">
               <Smartphone className="h-4 w-4" />
             </Button>
           </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button variant="default" size="sm" className="gap-1"><Bolt className="h-4 w-4" /> Deploy</Button>
+          <Button variant="ghost" size="sm"><Star className="h-4 w-4" /></Button>
+          <Button variant="ghost" size="sm"><Trash2 className="h-4 w-4" /></Button>
+          <Button variant="ghost" size="sm"><Settings className="h-4 w-4" /></Button>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

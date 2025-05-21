@@ -15,20 +15,12 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
-const pages = [
-  { id: 'home', name: 'Home', isActive: true },
-  { id: 'about', name: 'About', isActive: false },
-  { id: 'services', name: 'Services', isActive: false },
-  { id: 'contact', name: 'Contact', isActive: false },
-];
-
 const Dashboard = () => {
   const [generatedCode, setGeneratedCode] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [isPromptPanelCollapsed, setIsPromptPanelCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState('editor');
   const [isMobile, setIsMobile] = useState(false);
-  const [activePage, setActivePage] = useState(pages[0]);
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
 
   useEffect(() => {
@@ -55,7 +47,6 @@ const Dashboard = () => {
 
   const togglePromptPanel = () => setIsPromptPanelCollapsed(!isPromptPanelCollapsed);
   const toggleDevicePreview = () => setIsMobile(!isMobile);
-  const handleChangePage = (page) => setActivePage(page);
 
   return (
     <div className="flex flex-col h-screen bg-background text-foreground overflow-hidden">
@@ -88,13 +79,6 @@ const Dashboard = () => {
                 <DropdownMenuItem>Sign Out</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          </div>
-
-          <div className="flex items-center gap-2 p-2 overflow-x-auto border-b border-border">
-            {pages.map((page) => (
-              <Button key={page.id} variant={page.id === activePage.id ? 'secondary' : 'ghost'} size="sm" onClick={() => handleChangePage(page)}>{page.name}</Button>
-            ))}
-            <Button variant="outline" size="sm" className="ml-2">+ Add Page</Button>
           </div>
 
           <div className="flex-1 flex overflow-hidden">

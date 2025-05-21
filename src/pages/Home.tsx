@@ -1,171 +1,162 @@
 
 import { useState } from 'react';
-import AIPromptBox from '@/components/AIPromptBox';
-import ProjectCard from '@/components/ProjectCard';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Zap, Code, Github, LayoutPanelLeft as Layout } from 'lucide-react';
+import { Zap, ChevronDown } from 'lucide-react';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import ProjectCard from '@/components/ProjectCard';
+import Logo from '@/components/Logo';
+import { cn } from '@/lib/utils';
 
 const Home = () => {
-  const [activeTab, setActiveTab] = useState('projects');
+  const [prompt, setPrompt] = useState('');
+  const [modelSelection, setModelSelection] = useState('gpt-4o');
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // This would come from auth state
+  const navigate = useNavigate();
   
-  const recentProjects = [
+  // Mock projects data
+  const userProjects = [
     {
       title: 'E-commerce Site',
-      description: 'A modern e-commerce platform with product catalog and shopping cart',
+      description: 'A modern e-commerce platform with product catalog',
       image: 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d',
       lastUpdated: '2 days ago'
     },
     {
       title: 'Portfolio Template',
-      description: 'Professional portfolio site with projects showcase and contact form',
+      description: 'Professional portfolio with projects showcase',
       image: 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b',
       lastUpdated: '1 week ago'
     },
     {
       title: 'Blog Platform',
-      description: 'Content-focused blog with categories and author profiles',
+      description: 'Content-focused blog with categories',
       image: 'https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7',
       lastUpdated: '2 weeks ago'
     }
   ];
-  
-  const suggestedProjects = [
-    {
-      title: 'SaaS Dashboard',
-      description: 'Analytics dashboard for SaaS applications with charts and user management',
-      image: 'https://images.unsplash.com/photo-1531297484001-80022131f5a1',
-      isSuggestion: true
-    },
-    {
-      title: 'Real Estate Listing',
-      description: 'Property listing site with search filters and map integration',
-      image: 'https://images.unsplash.com/photo-1518770660439-4636190af475',
-      isSuggestion: true
-    },
-    {
-      title: 'Restaurant Website',
-      description: 'Restaurant site with menu, reservations and location information',
-      image: 'https://images.unsplash.com/photo-1518770660439-4636190af475',
-      isSuggestion: true
-    }
-  ];
+
+  const handleGenerateSite = () => {
+    if (!prompt.trim()) return;
+    
+    // Store the prompt in localStorage to be used in dashboard
+    localStorage.setItem('last_prompt', prompt);
+    
+    // Navigate to dashboard
+    navigate('/dashboard');
+  };
 
   return (
-    <div className="pt-20 pb-16">
-      {/* Hero Section */}
-      <section className="container py-20 flex flex-col items-center text-center">
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 max-w-3xl leading-tight">
-          Build Stunning Websites <span className="text-gradient">Powered by AI</span>
-        </h1>
-        <p className="text-xl text-muted-foreground max-w-2xl mb-10">
-          Transform your ideas into beautiful websites and applications with our AI-powered platform. 
-          No coding required.
-        </p>
-        <div className="w-full max-w-2xl">
-          <AIPromptBox fullWidth />
+    <div className="flex flex-col min-h-screen bg-background">
+      {/* Header */}
+      <header className="py-4 px-6 flex justify-between items-center border-b border-border">
+        <div className="flex items-center">
+          <Logo />
         </div>
-        <div className="flex flex-wrap gap-4 justify-center mt-10">
-          <Button variant="outline" className="border-primary/30 hover:border-primary">
-            View Examples
-          </Button>
-          <Button>
-            <Zap className="mr-2 h-4 w-4" />
-            Start Building Free
-          </Button>
-        </div>
-      </section>
-      
-      {/* Features Section */}
-      <section className="container py-20 border-t border-border/40">
-        <h2 className="text-3xl font-bold text-center mb-16">
-          Everything You Need to <span className="text-gradient">Build Faster</span>
-        </h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-          <div className="flex flex-col items-center text-center p-6 glass-card rounded-lg">
-            <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mb-4">
-              <Zap className="h-6 w-6 text-primary" />
-            </div>
-            <h3 className="text-xl font-semibold mb-2">AI-Powered Generation</h3>
-            <p className="text-muted-foreground">
-              Describe your vision and watch as AI transforms it into a fully functional website or app.
-            </p>
-          </div>
-          
-          <div className="flex flex-col items-center text-center p-6 glass-card rounded-lg">
-            <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mb-4">
-              <Layout className="h-6 w-6 text-primary" />
-            </div>
-            <h3 className="text-xl font-semibold mb-2">Visual Editor</h3>
-            <p className="text-muted-foreground">
-              Fine-tune your creation with our intuitive visual editor. No coding required.
-            </p>
-          </div>
-          
-          <div className="flex flex-col items-center text-center p-6 glass-card rounded-lg">
-            <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mb-4">
-              <Code className="h-6 w-6 text-primary" />
-            </div>
-            <h3 className="text-xl font-semibold mb-2">Code Access</h3>
-            <p className="text-muted-foreground">
-              Access and modify the underlying code if needed, with GitHub integration.
-            </p>
-          </div>
+        <div>
+          {isLoggedIn ? (
+            <Button variant="outline" onClick={() => navigate('/dashboard')}>
+              Go to Dashboard
+            </Button>
+          ) : (
+            <Button variant="outline" onClick={() => navigate('/login')}>
+              Login
+            </Button>
+          )}
         </div>
-      </section>
-      
-      {/* Projects Section */}
-      <section className="container py-20 border-t border-border/40">
-        <div className="flex justify-between items-center mb-10">
-          <h2 className="text-3xl font-bold">
-            <span className="text-gradient">Your Projects</span>
-          </h2>
-          <Tabs defaultValue="projects" value={activeTab} onValueChange={setActiveTab} className="w-fit">
-            <TabsList>
-              <TabsTrigger value="projects">My Projects</TabsTrigger>
-              <TabsTrigger value="suggestions">Suggestions</TabsTrigger>
-            </TabsList>
+      </header>
+
+      {/* Main content */}
+      <main className="flex-1 flex flex-col items-center justify-center px-4 py-12 md:py-24">
+        <div className="max-w-3xl text-center space-y-6">
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
+            Create sites and apps with <span className="text-purple-500">AI</span>
+          </h1>
           
-            <TabsContent value="projects" className="mt-0">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {recentProjects.map((project, index) => (
-                  <ProjectCard key={index} {...project} />
-                ))}
-              </div>
-            </TabsContent>
+          <h2 className="text-xl md:text-2xl text-muted-foreground">
+            Transform your ideas into functional websites and applications 
+            in seconds using our advanced AI platform.
+          </h2>
+          
+          <div className="flex flex-col md:flex-row items-center gap-2 max-w-xl mx-auto mt-8">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="w-full md:w-auto">
+                  {modelSelection}
+                  <ChevronDown className="ml-2 h-4 w-4 text-muted-foreground" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-56 p-0">
+                <div className="flex flex-col">
+                  <Button 
+                    variant="ghost" 
+                    className="justify-start font-normal"
+                    onClick={() => setModelSelection('gpt-4o')}
+                  >
+                    GPT-4o
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    className="justify-start font-normal"
+                    onClick={() => setModelSelection('gpt-4o-mini')}
+                  >
+                    GPT-4o Mini
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    className="justify-start font-normal"
+                    onClick={() => setModelSelection('claude-3')}
+                  >
+                    Claude-3
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
             
-            <TabsContent value="suggestions" className="mt-0">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {suggestedProjects.map((project, index) => (
-                  <ProjectCard key={index} {...project} />
-                ))}
-              </div>
-            </TabsContent>
-          </Tabs>
-        </div>
-      </section>
-      
-      {/* CTA Section */}
-      <section className="container py-20 border-t border-border/40">
-        <div className="glass-card p-10 lg:p-20 rounded-2xl text-center">
-          <h2 className="text-3xl lg:text-4xl font-bold mb-6">
-            Ready to build your next project?
-          </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-            Join thousands of creators who are building faster with AI.
-          </p>
-          <div className="flex flex-wrap gap-4 justify-center">
-            <Button size="lg">
+            <div className="relative w-full">
+              <input
+                type="text"
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                placeholder="Describe the site or app you want to create..."
+                className={cn(
+                  "w-full px-4 py-3 rounded-md border border-border bg-background focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all",
+                  "focus:shadow-[0_0_0_2px_rgba(139,92,246,0.3)]"
+                )}
+              />
+            </div>
+            
+            <Button 
+              onClick={handleGenerateSite} 
+              className="w-full md:w-auto bg-purple-600 hover:bg-purple-700"
+              disabled={!prompt.trim()}
+            >
               <Zap className="mr-2 h-4 w-4" />
-              Get Started for Free
-            </Button>
-            <Button variant="outline" size="lg" className="border-primary/30 hover:border-primary">
-              See Examples
+              Generate
             </Button>
           </div>
         </div>
-      </section>
+      </main>
+
+      {/* User projects section - only visible when logged in */}
+      {isLoggedIn && (
+        <section className="py-12 px-6">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-2xl font-bold mb-6">Your Projects</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {userProjects.map((project, index) => (
+                <ProjectCard key={index} {...project} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
     </div>
   );
 };

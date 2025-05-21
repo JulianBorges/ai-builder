@@ -12,7 +12,6 @@ import BlogPost from "./pages/BlogPost";
 import Login from "./pages/Login";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-import V0Dashboard from "./components/V0Dashboard";
 
 const queryClient = new QueryClient();
 
@@ -24,7 +23,7 @@ const App = () => (
       <BrowserRouter>
         <div className="min-h-screen flex flex-col bg-background">
           <Routes>
-            <Route path="/" element={<V0Dashboard />} />
+            <Route path="/" element={<Home />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:id" element={<BlogPost />} />

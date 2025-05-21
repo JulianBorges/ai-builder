@@ -9,6 +9,7 @@ import {
   Star, 
   Trash2,
   Settings,
+  Zap,
 } from 'lucide-react';
 import { 
   DropdownMenu,
@@ -93,7 +94,13 @@ export const ActionBar = ({
       </div>
 
       <div className="flex items-center gap-2">
-        <Button variant="default" size="sm" onClick={onPublish} className="h-8">
+        <Button 
+          variant="default" 
+          size="sm" 
+          onClick={onPublish} 
+          className="h-8 bg-purple-600 hover:bg-purple-700"
+        >
+          <Zap className="mr-2 h-4 w-4" />
           Deploy
         </Button>
 

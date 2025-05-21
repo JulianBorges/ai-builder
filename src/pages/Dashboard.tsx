@@ -5,7 +5,7 @@ import PreviewPanel from '@/components/PreviewPanel';
 import { openAIService } from '@/services/openai-service';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, Monitor, Smartphone, Clock, Star, Trash2, Settings, Bolt, Code } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Monitor, Smartphone, Clock, Star, Trash2, Settings, Bolt, Code, Laptop } from 'lucide-react';
 import ApiKeyModal from '@/components/ApiKeyModal';
 import {
   DropdownMenu,
@@ -21,6 +21,7 @@ const Dashboard = () => {
   const [isPromptPanelCollapsed, setIsPromptPanelCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
+  const [activePage, setActivePage] = useState('Home');
 
   useEffect(() => {
     const lastGeneration = localStorage.getItem('last_generation');
@@ -56,7 +57,20 @@ const Dashboard = () => {
           <Button variant="ghost" size="sm"><Code className="h-4 w-4" /></Button>
           <Button variant="ghost" size="sm"><Clock className="h-4 w-4" /></Button>
 
-          <div className="flex items-center gap-1 border border-border rounded-md ml-4">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="flex items-center gap-1">
+                <Laptop className="h-4 w-4" /> {activePage} ▼
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              {['Home', 'About', 'Services', 'Contact'].map((page) => (
+                <DropdownMenuItem key={page} onClick={() => setActivePage(page)}>{page}</DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <div className="flex items-center gap-1 border border-border rounded-md ml-2">
             <Button variant={!isMobile ? 'secondary' : 'ghost'} size="sm" onClick={() => setIsMobile(false)} className="rounded-r-none">
               <Monitor className="h-4 w-4" />
             </Button>

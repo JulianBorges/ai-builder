@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 import { env } from "@/config/env";
 
@@ -38,7 +37,6 @@ CRITICAL INSTRUCTIONS:
 13. Ensure the site has proper navigation and clear information hierarchy.
 14. Add placeholder content that makes sense for the requested site type.
 15. Make interactive elements (buttons, forms, etc.) appear functional even if they don't have backend functionality.
-
 ONLY RETURN VALID HTML CODE - no explanations, markdown, or other text outside the HTML.`;
 
 export class OpenAIService {
@@ -66,7 +64,7 @@ export class OpenAIService {
   }
 
   async generateWebsiteIdea(
-    prompt: string, 
+    prompt: string,
     model: OpenAIModel = 'gpt-4o-mini',
     onPartialResponse?: (text: string) => void,
     systemPrompt: string = DEFAULT_SYSTEM_PROMPT
@@ -76,10 +74,7 @@ export class OpenAIService {
       throw new Error("API key is required");
     }
 
-    // Cancel any ongoing request
     this.cancelCurrentRequest();
-    
-    // Create a new abort controller for this request
     this.abortController = new AbortController();
     const signal = this.abortController.signal;
 
@@ -91,32 +86,24 @@ export class OpenAIService {
           'Authorization': `Bearer ${this.apiKey}`
         },
         body: JSON.stringify({
-          model: model,
+          model,
           messages: [
-            {
-              role: 'system',
-              content: systemPrompt
-            },
-            {
-              role: 'user',
-              content: prompt
-            }
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: prompt }
           ],
           max_tokens: env.MAX_TOKENS || 4000,
           temperature: env.DEFAULT_TEMPERATURE || 0.7,
-          stream: !!onPartialResponse, // Only stream if we have a callback
+          stream: !!onPartialResponse,
         }),
         signal
       });
 
       if (!response.ok) {
         const error = await response.json();
-        console.error("OpenAI API error:", error);
         toast.error("Error generating website: " + (error.error?.message || "Unknown error"));
         throw new Error(error.error?.message || "Failed to generate website idea");
       }
 
-      // Handle streaming response if needed
       if (onPartialResponse && response.headers.get("content-type")?.includes("text/event-stream")) {
         const reader = response.body?.getReader();
         if (!reader) throw new Error("Failed to get response reader");
@@ -128,18 +115,14 @@ export class OpenAIService {
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
-          
           buffer += decoder.decode(value, { stream: true });
-          
-          // Process all complete events in buffer
           const lines = buffer.split('\n');
           buffer = lines.pop() || '';
-          
+
           for (const line of lines) {
             if (line.startsWith('data: ')) {
               const data = line.slice(6);
               if (data === '[DONE]') continue;
-              
               try {
                 const json = JSON.parse(data);
                 const content = json.choices[0]?.delta?.content || '';
@@ -153,29 +136,46 @@ export class OpenAIService {
             }
           }
         }
-        
+
         return fullText;
-      } 
-      else {
-        // Handle regular JSON response
+      } else {
         const data = await response.json() as OpenAIResponse;
         return data.choices[0].message.content;
       }
     } catch (error: any) {
-      // Don't show error if it's an abort error
-      if (error.name === 'AbortError') {
-        console.log('Request was cancelled');
-        return '';
-      }
-
-      console.error("Error calling OpenAI:", error);
+      if (error.name === 'AbortError') return '';
       toast.error("Error generating website: " + (error instanceof Error ? error.message : "Unknown error"));
       throw error;
     } finally {
       this.abortController = null;
     }
   }
+
+  async generateWebsiteIdeaStructured(
+    prompt: string,
+    model: OpenAIModel = 'gpt-4o-mini',
+    onStream?: (partial: string) => void
+  ): Promise<{ html_code: string; files: { path: string; content: string }[] }> {
+    const response = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, model }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      toast.error("Erro ao gerar site estruturado.");
+      throw new Error(error.error || 'Erro inesperado');
+    }
+
+    const result = await response.json();
+    if (onStream && result.html_code) onStream(result.html_code);
+
+    return {
+      html_code: result.html_code || '',
+      files: result.files || [],
+    };
+  }
 }
 
-// Cria uma instância do serviço para uso global
 export const openAIService = new OpenAIService();

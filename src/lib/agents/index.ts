@@ -8,6 +8,7 @@
 export * from './types';
 export * from './plannerAgent';
 export * from './orchestrator';
+export * from './finalizationAgent';
 
 // These would be implemented later
 export const structureAgent = async () => ({ content: {} });
@@ -15,7 +16,6 @@ export const contentAgent = async () => ({ content: {} });
 export const designAgent = async () => ({ content: {} });
 export const interactionsAgent = async () => ({ content: {} });
 export const seoAgent = async () => ({ content: {} });
-export const finalizationAgent = async () => ({ content: {} });
 
 /**
  * Main entry point for website generation

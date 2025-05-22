@@ -99,3 +99,30 @@ export interface OrchestrationResult {
 
 // Progress tracking callback
 export type ProgressCallback = (stage: string, progress: number, total: number) => void;
+
+// New types for finalization agent
+
+export interface AgentOutputs {
+  structure?: { [pageId: string]: any };
+  content?: { [pageId: string]: any };
+  design?: any;
+  interactions?: any;
+  seo?: any;
+}
+
+export interface FinalizationInput {
+  plan: GenerationPlan;
+  agentOutputs: AgentOutputs;
+  html?: { [pageId: string]: string };
+  css?: string;
+  javascript?: string;
+}
+
+export interface FinalizationResult {
+  html_code: string; // Complete HTML document for preview
+  files: Array<{
+    path: string;
+    content: string;
+  }>;
+  agent_outputs?: AgentOutputs;
+}

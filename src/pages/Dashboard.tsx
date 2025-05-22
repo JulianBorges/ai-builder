@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import ActionBar from '@/components/ActionBar';
 import AIPromptPanel from '@/components/AIPromptPanel';
 import PreviewPanel from '@/components/PreviewPanel';
 import { openAIService } from '@/services/openai-service';
@@ -13,35 +14,29 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import VersionSidebar from '@/components/VersionSidebar';
 
 const Dashboard = () => {
-  const [htmlCode, setHtmlCode] = useState('');
-  const [generatedFiles, setGeneratedFiles] = useState([]);
+  const [generatedCode, setGeneratedCode] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [isPromptPanelCollapsed, setIsPromptPanelCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
   const [activePage, setActivePage] = useState('Home');
-  const [showSidebar, setShowSidebar] = useState(false);
 
   useEffect(() => {
-    const lastHTML = localStorage.getItem('last_html_code');
-    const lastFiles = localStorage.getItem('last_files');
-    if (lastHTML) setHtmlCode(lastHTML);
-    if (lastFiles) setGeneratedFiles(JSON.parse(lastFiles));
+    const lastGeneration = localStorage.getItem('last_generation');
+    if (lastGeneration) setGeneratedCode(lastGeneration);
   }, []);
 
   const handleSubmitPrompt = async (prompt) => {
     if (!prompt.trim()) return;
     setIsGenerating(true);
     try {
-      const result = await openAIService.generateWebsiteIdeaStructured(prompt, 'gpt-4o-mini');
-      setHtmlCode(result.html_code);
-      setGeneratedFiles(result.files);
-      localStorage.setItem('last_html_code', result.html_code);
-      localStorage.setItem('last_files', JSON.stringify(result.files));
+      await openAIService.generateWebsiteIdea(prompt, 'gpt-4o-mini', (partialText) => {
+        setGeneratedCode(partialText);
+      });
       toast.success('Geração concluída!');
+      localStorage.setItem('last_generation', generatedCode);
     } catch (error) {
       console.error('Erro na geração:', error);
       toast.error('Erro ao gerar conteúdo.');
@@ -52,11 +47,6 @@ const Dashboard = () => {
 
   const togglePromptPanel = () => setIsPromptPanelCollapsed(!isPromptPanelCollapsed);
   const toggleDevicePreview = () => setIsMobile(!isMobile);
-
-  const currentFile = generatedFiles.find(f =>
-    f.path.toLowerCase() === `pages/${activePage.toLowerCase()}.tsx`
-  );
-  const tsxContent = currentFile?.content;
 
   return (
     <div className="flex flex-col h-screen bg-background text-foreground overflow-hidden">
@@ -98,7 +88,7 @@ const Dashboard = () => {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" onClick={() => setShowSidebar(true)}> <Clock className="h-4 w-4" />
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-full">
                 <Avatar className="h-8 w-8">
                   <AvatarFallback>U</AvatarFallback>
                 </Avatar>
@@ -136,7 +126,7 @@ const Dashboard = () => {
           )}
         </div>
         <div className="flex-1 overflow-hidden">
-          <PreviewPanel htmlCode={htmlCode} tsxContent={tsxContent} isMobile={isMobile} />
+          <PreviewPanel generatedCode={generatedCode} isMobile={isMobile} />
         </div>
       </div>
 

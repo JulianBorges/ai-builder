@@ -30,14 +30,20 @@ const AIPromptBox = ({ className = "", fullWidth = false }: AIPromptBoxProps) =>
 
   useEffect(() => {
     // Verificar se já temos uma API key armazenada
-    const isEnvValid = validateEnv();
-    if (!isEnvValid) {
-      const savedApiKey = localStorage.getItem('openai_api_key');
-      if (savedApiKey) {
-        openAIService.setApiKey(savedApiKey);
-      } else {
-        setShowApiKeyModal(true);
-      }
+    const savedApiKey = localStorage.getItem('openai_api_key');
+    if (savedApiKey) {
+      openAIService.setApiKey(savedApiKey);
+    } else {
+      // Usar a API Key fornecida ou abrir o modal
+    const defaultKey = import.meta.env.VITE_OPENAI_DEFAULT_KEY;
+    if (defaultKey) {
+      openAIService.setApiKey(defaultKey);
+      localStorage.setItem('openai_api_key', defaultKey);
+      toast.success('API Key padrão carregada!');
+    } else {
+      setShowApiKeyModal(true);
+    }
+
     }
   }, []);
 

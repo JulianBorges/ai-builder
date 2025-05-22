@@ -1,15 +1,17 @@
-
 import React from 'react';
 import HtmlPreview from './HtmlPreview';
 import HtmlQualityIndicator from './HtmlQualityIndicator';
 import { cn } from '@/lib/utils';
 
 interface PreviewPanelProps {
-  generatedCode: string;
+  htmlCode?: string;
+  tsxContent?: string;
   isMobile?: boolean;
 }
 
-export const PreviewPanel = ({ generatedCode, isMobile = false }: PreviewPanelProps) => {
+export const PreviewPanel = ({ htmlCode, tsxContent, isMobile = false }: PreviewPanelProps) => {
+  const contentToShow = tsxContent || htmlCode;
+
   return (
     <div className="flex flex-col h-full">
       <div className="p-2 border-b border-border flex items-center justify-between">
@@ -17,16 +19,16 @@ export const PreviewPanel = ({ generatedCode, isMobile = false }: PreviewPanelPr
           <span className="text-sm font-medium">Preview</span>
           {isMobile && <span className="text-xs text-muted-foreground">(Mobile view)</span>}
         </div>
-        <HtmlQualityIndicator htmlContent={generatedCode} />
+        {contentToShow && <HtmlQualityIndicator htmlContent={contentToShow} />}
       </div>
-      
+
       <div className="flex-1 bg-[#F6F8FB] dark:bg-[#111] flex items-center justify-center p-4 overflow-auto">
         <div className={cn(
           "transition-all duration-300 h-full bg-white dark:bg-black shadow-md overflow-hidden",
           isMobile ? "max-w-[390px] w-full" : "w-full"
         )}>
-          {generatedCode ? (
-            <HtmlPreview htmlContent={generatedCode} />
+          {contentToShow ? (
+            <HtmlPreview htmlContent={contentToShow} />
           ) : (
             <div className="text-center text-muted-foreground flex flex-col items-center justify-center h-full">
               <h2 className="text-2xl font-bold">Hello World</h2>
@@ -40,7 +42,6 @@ export const PreviewPanel = ({ generatedCode, isMobile = false }: PreviewPanelPr
   );
 };
 
-// This is needed for the empty state
 const Button = ({ className, children }: { className?: string, children: React.ReactNode }) => {
   return (
     <button className={`px-4 py-2 rounded-md ${className}`}>

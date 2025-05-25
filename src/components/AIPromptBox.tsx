@@ -5,11 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { Zap, MessageCircle, Settings } from 'lucide-react';
+import { Zap, Settings } from 'lucide-react';
 import { openAIService, OpenAIModel } from '@/services/openai-service';
 import ApiKeyModal from './ApiKeyModal';
 import HtmlPreview from './HtmlPreview';
-import { plannerAgent, orchestrator } from '@/lib/agents'
+import { plannerAgent } from '@/lib/agents/plannerAgent';
+import { orchestrator } from '@/lib/agents/orchestrator';
 import { Progress } from '@/components/ui/progress';
 import { env, validateEnv } from '@/config/env';
 import { debugLog } from "@/utils/debugLog";
@@ -41,6 +42,24 @@ const AIPromptBox = ({ className = "", fullWidth = false }: AIPromptBoxProps) =>
       }
     }
   }, []);
+
+  const runAgentPipeline = async (
+    context: { prompt: string; model: OpenAIModel; siteType: string },
+    onProgress: (current: number, total: number, step: string) => void
+  ): Promise<string> => {
+    const planResponse = await plannerAgent(context);
+    if (planResponse.error) throw new Error(planResponse.error);
+    
+    const result = await orchestrator(
+      planResponse.content,
+      context,
+      (step, current, total) => {
+        onProgress(current, total, step);
+      }
+    );
+    
+    return result.html['home'] || '';
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

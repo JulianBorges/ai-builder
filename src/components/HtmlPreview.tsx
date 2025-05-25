@@ -8,7 +8,7 @@ interface HtmlPreviewProps {
 }
 
 const HtmlPreview: React.FC<HtmlPreviewProps> = ({ htmlContent, cssContent = '', className = '' }) => {
-  debugLog("✅ HtmlPreview", "Rendering HTML content", { htmlLength: htmlContent.length });
+  debugLog("✅ HtmlPreview", "Rendering HTML content", htmlContent.length);
 
   // If htmlContent already contains a complete HTML document, use it directly
   // Otherwise, wrap it in a complete HTML structure

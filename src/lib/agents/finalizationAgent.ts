@@ -19,7 +19,7 @@ function injectContentIntoHTML(html: string, contentMap: Record<string, string>)
 
 export const finalizationAgent = async (
   input: FinalizationInput | OrchestrationResult,
-  context: AgentContext
+  context?: AgentContext
 ): Promise<FinalizationResult> => {
   const plan = input.plan;
   const outputs = "agentOutputs" in input ? input.agentOutputs : {};

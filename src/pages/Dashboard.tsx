@@ -28,25 +28,15 @@ const Dashboard = () => {
     if (lastGeneration) setGeneratedCode(lastGeneration);
   }, []);
 
-  const handleSubmitPrompt = async (prompt) => {
-    if (!prompt.trim()) return;
-    setIsGenerating(true);
-    try {
-      await openAIService.generateWebsiteIdea(prompt, 'gpt-4o-mini', (partialText) => {
-        setGeneratedCode(partialText);
-      });
-      toast.success('Geração concluída!');
-      localStorage.setItem('last_generation', generatedCode);
-    } catch (error) {
-      console.error('Erro na geração:', error);
-      toast.error('Erro ao gerar conteúdo.');
-    } finally {
-      setIsGenerating(false);
+  const handleHtmlUpdate = (html: any) => {
+    if (typeof html === 'object' && html.home) {
+      setGeneratedCode(html.home);
+    } else if (typeof html === 'string') {
+      setGeneratedCode(html);
     }
   };
 
   const togglePromptPanel = () => setIsPromptPanelCollapsed(!isPromptPanelCollapsed);
-  const toggleDevicePreview = () => setIsMobile(!isMobile);
 
   return (
     <div className="flex flex-col h-screen bg-background text-foreground overflow-hidden">
@@ -120,7 +110,10 @@ const Dashboard = () => {
                 </Button>
               </div>
               <div className="flex-1 overflow-y-auto">
-                <AIPromptPanel onSubmitPrompt={handleSubmitPrompt} isGenerating={isGenerating} />
+                <AIPromptPanel 
+                  onHtmlUpdate={handleHtmlUpdate} 
+                  isGenerating={isGenerating} 
+                />
               </div>
             </div>
           )}

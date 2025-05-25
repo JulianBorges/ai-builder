@@ -1,30 +1,31 @@
+
 import { AgentContext, AgentFunction } from "./types";
 import { openAIService } from "@/services/openai-service";
 import { debugLog } from "@/utils/debugLog";
 
-const SYSTEM_PROMPT = `You are an SEO specialist. Your task is to create 
-meta tags and SEO improvements for a website.
+const SYSTEM_PROMPT = `You are a website structure specialist. Your task is to create 
+the HTML structure for a website page.
 
 IMPORTANT INSTRUCTIONS:
-1. Generate ONLY the <head> section meta tags for SEO.
-2. Include all essential meta tags: title, description, viewport, charset.
-3. Add Open Graph tags for social media sharing.
-4. Add Twitter Card tags.
-5. Include canonical URL placeholder.
-6. Add appropriate language and direction attributes.
-7. Include a favicon placeholder link.
-8. Add any other relevant meta tags for SEO optimization.
-9. Ensure tags follow current SEO best practices.
-10. Include comments to explain the purpose of different meta tag groups.
+1. Generate ONLY the HTML structure (semantic HTML5).
+2. Use proper semantic tags: header, nav, main, section, article, aside, footer.
+3. Include appropriate section IDs for content injection.
+4. Create a responsive, accessible structure.
+5. Use placeholder content where needed.
+6. Include proper heading hierarchy (h1, h2, h3, etc.).
+7. Add appropriate ARIA labels and accessibility attributes.
+8. Structure should be mobile-first and responsive.
+9. Include sections like: hero, about, services, contact, etc. as appropriate.
+10. Return clean, well-formatted HTML.
 
-ONLY RETURN THE <head> CONTENT WITHOUT <head> TAGS THEMSELVES.`;
+ONLY RETURN HTML STRUCTURE WITHOUT <html> or <head> TAGS.`;
 
-export const seoAgent: AgentFunction = async (context: AgentContext) => {
+export const structureAgent: AgentFunction = async (context: AgentContext) => {
   try {
     let result = '';
     
     await openAIService.generateWebsiteIdea(
-      `Create SEO meta tags for a ${context.siteType || 'generic'} website titled "${context.prompt}".`, 
+      `Create HTML structure for a ${context.siteType || 'generic'} website page. ${context.prompt}`, 
       context.model,
       (partialText) => {
         result = partialText;
@@ -32,16 +33,16 @@ export const seoAgent: AgentFunction = async (context: AgentContext) => {
       SYSTEM_PROMPT
     );
    
-    debugLog("🔍 SEO gerado", result);
+    debugLog("🏗️ Estrutura HTML gerada", result);
 
     return {
       content: result
     };
   } catch (error) {
-    debugLog("❌ SEO Agent Error", error);
+    debugLog("❌ Structure Agent Error", error);
     return {
       content: '',
-      error: error instanceof Error ? error.message : 'Unknown error in SEO agent'
+      error: error instanceof Error ? error.message : 'Unknown error in structure agent'
     };
   }
 };

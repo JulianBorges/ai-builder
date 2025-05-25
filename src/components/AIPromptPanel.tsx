@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -9,14 +10,24 @@ import { toast } from 'sonner';
 import ApiKeyModal from './ApiKeyModal';
 import { debugLog } from "@/utils/debugLog";
 
-const AIPromptPanel = ({ onHtmlUpdate = () => {}, model = 'gpt-4o-mini', isGenerating: externalGenerating = false }) => {
+interface AIPromptPanelProps {
+  onHtmlUpdate?: (html: any) => void;
+  model?: OpenAIModel;
+  isGenerating?: boolean;
+}
+
+const AIPromptPanel: React.FC<AIPromptPanelProps> = ({ 
+  onHtmlUpdate = () => {}, 
+  model = 'gpt-4o-mini', 
+  isGenerating: externalGenerating = false 
+}) => {
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(externalGenerating);
   const [progressStep, setProgressStep] = useState('');
   const [progressPercentage, setProgressPercentage] = useState(0);
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!prompt.trim() || isGenerating) return;
 
@@ -31,13 +42,17 @@ const AIPromptPanel = ({ onHtmlUpdate = () => {}, model = 'gpt-4o-mini', isGener
     setProgressStep("Planejando...");
 
     try {
-      const planResponse = await plannerAgent({ prompt, model, siteType: detectSiteType(prompt) });
+      const planResponse = await plannerAgent({ 
+        prompt, 
+        model: model as OpenAIModel, 
+        siteType: detectSiteType(prompt) 
+      });
 
       if (planResponse.error) throw new Error(planResponse.error);
 
       const result = await orchestrator(
         planResponse.content,
-        { prompt, model },
+        { prompt, model: model as OpenAIModel },
         (step, current, total, partialHtml) => {
           setProgressStep(step);
           setProgressPercentage((current / total) * 100);
@@ -88,7 +103,7 @@ const AIPromptPanel = ({ onHtmlUpdate = () => {}, model = 'gpt-4o-mini', isGener
     }
   };
 
-  const detectSiteType = (prompt) => {
+  const detectSiteType = (prompt: string) => {
     const p = prompt.toLowerCase();
     if (p.includes("loja")) return "ecommerce";
     if (p.includes("blog")) return "blog";
@@ -98,20 +113,29 @@ const AIPromptPanel = ({ onHtmlUpdate = () => {}, model = 'gpt-4o-mini', isGener
   };
 
   return (
-    <div>
-      <form onSubmit={handleSubmit}>
-        <Textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="Descreva o site que deseja..." />
-        <Button type="submit" disabled={isGenerating}>
+    <div className="p-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <Textarea 
+          value={prompt} 
+          onChange={(e) => setPrompt(e.target.value)} 
+          placeholder="Descreva o site que deseja..." 
+          className="min-h-[100px]"
+        />
+        <Button type="submit" disabled={isGenerating} className="w-full">
           {isGenerating ? "Gerando..." : "Gerar Site"}
         </Button>
       </form>
       {isGenerating && (
-        <div className="mt-2">
-          <p>{progressStep}</p>
+        <div className="mt-4 space-y-2">
+          <p className="text-sm text-muted-foreground">{progressStep}</p>
           <Progress value={progressPercentage} />
         </div>
       )}
-      <ApiKeyModal isOpen={showApiKeyModal} onClose={() => setShowApiKeyModal(false)} defaultApiKey={openAIService.getApiKey() || ''} />
+      <ApiKeyModal 
+        isOpen={showApiKeyModal} 
+        onClose={() => setShowApiKeyModal(false)} 
+        defaultApiKey={openAIService.getApiKey() || ''} 
+      />
     </div>
   );
 };

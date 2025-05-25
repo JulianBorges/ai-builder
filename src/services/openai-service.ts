@@ -45,7 +45,7 @@ export class OpenAIService {
   private abortController: AbortController | null = null;
 
   constructor(apiKey?: string) {
-    this.apiKey = apiKey || env.OPENAI_API_KEY || localStorage.getItem('openai_api_key');
+    this.apiKey = apiKey || env.OPENAI_API_KEY || null;
   }
 
   setApiKey(apiKey: string) {

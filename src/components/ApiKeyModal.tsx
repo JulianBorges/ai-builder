@@ -17,13 +17,18 @@ const ApiKeyModal = ({ isOpen, onClose, defaultApiKey = '' }: ApiKeyModalProps) 
   const [apiKey, setApiKey] = useState('');
 
   useEffect(() => {
-    if (defaultApiKey) {
+  if (defaultApiKey) {
       setApiKey(defaultApiKey);
+      openAIService.setApiKey(defaultApiKey); // <- garante uso imediato
     } else {
       const savedApiKey = localStorage.getItem('openai_api_key') || '';
       setApiKey(savedApiKey);
+      if (savedApiKey) {
+        openAIService.setApiKey(savedApiKey); // <- garante uso imediato
+      }
     }
   }, [defaultApiKey, isOpen]);
+
 
   const handleSubmit = () => {
     if (apiKey.trim()) {

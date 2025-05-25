@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 import { env } from "@/config/env";
 
@@ -66,7 +65,7 @@ export class OpenAIService {
   }
 
   async generateWebsiteIdea(
-    prompt: string, 
+    prompt: string,
     model: OpenAIModel = 'gpt-4o-mini',
     onPartialResponse?: (text: string) => void,
     systemPrompt: string = DEFAULT_SYSTEM_PROMPT
@@ -76,10 +75,7 @@ export class OpenAIService {
       throw new Error("API key is required");
     }
 
-    // Cancel any ongoing request
     this.cancelCurrentRequest();
-    
-    // Create a new abort controller for this request
     this.abortController = new AbortController();
     const signal = this.abortController.signal;
 
@@ -104,7 +100,7 @@ export class OpenAIService {
           ],
           max_tokens: env.MAX_TOKENS || 4000,
           temperature: env.DEFAULT_TEMPERATURE || 0.7,
-          stream: !!onPartialResponse, // Only stream if we have a callback
+          stream: !!onPartialResponse,
         }),
         signal
       });
@@ -116,7 +112,6 @@ export class OpenAIService {
         throw new Error(error.error?.message || "Failed to generate website idea");
       }
 
-      // Handle streaming response if needed
       if (onPartialResponse && response.headers.get("content-type")?.includes("text/event-stream")) {
         const reader = response.body?.getReader();
         if (!reader) throw new Error("Failed to get response reader");
@@ -128,18 +123,16 @@ export class OpenAIService {
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
-          
+
           buffer += decoder.decode(value, { stream: true });
-          
-          // Process all complete events in buffer
           const lines = buffer.split('\n');
           buffer = lines.pop() || '';
-          
+
           for (const line of lines) {
             if (line.startsWith('data: ')) {
               const data = line.slice(6);
               if (data === '[DONE]') continue;
-              
+
               try {
                 const json = JSON.parse(data);
                 const content = json.choices[0]?.delta?.content || '';
@@ -153,16 +146,13 @@ export class OpenAIService {
             }
           }
         }
-        
+
         return fullText;
-      } 
-      else {
-        // Handle regular JSON response
+      } else {
         const data = await response.json() as OpenAIResponse;
         return data.choices[0].message.content;
       }
     } catch (error: any) {
-      // Don't show error if it's an abort error
       if (error.name === 'AbortError') {
         console.log('Request was cancelled');
         return '';
@@ -177,5 +167,68 @@ export class OpenAIService {
   }
 }
 
-// Cria uma instância do serviço para uso global
 export const openAIService = new OpenAIService();
+
+export interface GenerationPlan {
+  pages: { name: string; path: string }[];
+  components?: { name: string }[];
+  styles?: string[];
+}
+
+openAIService.generatePlan = async function (prompt: string, model: OpenAIModel = 'gpt-4o-mini'): Promise<GenerationPlan> {
+  if (!this.apiKey) {
+    toast.error("API key is required. Please enter your OpenAI API key in settings.");
+    throw new Error("API key is required");
+  }
+
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${this.apiKey}`,
+    },
+    body: JSON.stringify({
+      model: model,
+      messages: [
+        {
+          role: 'system',
+          content: `You are a web project planner. Given a description of a website, you return a JSON structure like this:
+{
+  "pages": [
+    { "name": "home", "path": "/" },
+    { "name": "about", "path": "/about" },
+    { "name": "contact", "path": "/contact" }
+  ],
+  "components": [],
+  "styles": []
+}`
+        },
+        {
+          role: 'user',
+          content: prompt
+        }
+      ],
+      temperature: 0.2,
+      max_tokens: 500,
+    })
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    console.error("Error in generatePlan:", error);
+    toast.error("Erro ao gerar plano: " + (error.error?.message || "Erro desconhecido"));
+    throw new Error(error.error?.message || "Erro ao gerar plano");
+  }
+
+  const data = await response.json();
+  const content = data.choices[0].message.content;
+
+  try {
+    const json: GenerationPlan = JSON.parse(content);
+    return json;
+  } catch (e) {
+    console.error("Erro ao parsear plano:", e);
+    toast.error("Plano de geração inválido. A IA retornou algo que não é JSON.");
+    throw new Error("Plano inválido");
+  }
+};

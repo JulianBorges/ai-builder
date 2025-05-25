@@ -1,3 +1,4 @@
+
 import { toast } from "sonner";
 import { env } from "@/config/env";
 
@@ -168,67 +169,3 @@ export class OpenAIService {
 }
 
 export const openAIService = new OpenAIService();
-
-export interface GenerationPlan {
-  pages: { name: string; path: string }[];
-  components?: { name: string }[];
-  styles?: string[];
-}
-
-openAIService.generatePlan = async function (prompt: string, model: OpenAIModel = 'gpt-4o-mini'): Promise<GenerationPlan> {
-  if (!this.apiKey) {
-    toast.error("API key is required. Please enter your OpenAI API key in settings.");
-    throw new Error("API key is required");
-  }
-
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${this.apiKey}`,
-    },
-    body: JSON.stringify({
-      model: model,
-      messages: [
-        {
-          role: 'system',
-          content: `You are a web project planner. Given a description of a website, you return a JSON structure like this:
-{
-  "pages": [
-    { "name": "home", "path": "/" },
-    { "name": "about", "path": "/about" },
-    { "name": "contact", "path": "/contact" }
-  ],
-  "components": [],
-  "styles": []
-}`
-        },
-        {
-          role: 'user',
-          content: prompt
-        }
-      ],
-      temperature: 0.2,
-      max_tokens: 500,
-    })
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    console.error("Error in generatePlan:", error);
-    toast.error("Erro ao gerar plano: " + (error.error?.message || "Erro desconhecido"));
-    throw new Error(error.error?.message || "Erro ao gerar plano");
-  }
-
-  const data = await response.json();
-  const content = data.choices[0].message.content;
-
-  try {
-    const json: GenerationPlan = JSON.parse(content);
-    return json;
-  } catch (e) {
-    console.error("Erro ao parsear plano:", e);
-    toast.error("Plano de geração inválido. A IA retornou algo que não é JSON.");
-    throw new Error("Plano inválido");
-  }
-};

@@ -3,22 +3,21 @@ import { AgentContext, AgentFunction } from "./types";
 import { openAIService } from "@/services/openai-service";
 import { debugLog } from "@/utils/debugLog";
 
-const SYSTEM_PROMPT = `You are a website structure specialist. Your task is to create 
-the HTML structure for a website page.
+const SYSTEM_PROMPT = `You are a website structure specialist. Your task is to create the HTML structure for a website page.
 
 IMPORTANT INSTRUCTIONS:
 1. Generate ONLY the HTML structure (semantic HTML5).
 2. Use proper semantic tags: header, nav, main, section, article, aside, footer.
-3. Include appropriate section IDs for content injection.
-4. Create a responsive, accessible structure.
-5. Use placeholder content where needed.
-6. Include proper heading hierarchy (h1, h2, h3, etc.).
-7. Add appropriate ARIA labels and accessibility attributes.
-8. Structure should be mobile-first and responsive.
-9. Include sections like: hero, about, services, contact, etc. as appropriate.
-10. Return clean, well-formatted HTML.
+3. Include appropriate section IDs for content injection (e.g. id="hero", id="about", etc).
+4. Create a responsive, accessible structure using good practices.
+5. Use heading hierarchy (h1, h2, h3), ARIA labels, and accessibility attributes.
+6. Do NOT include <html>, <head> or <style> tags — return only the body content.
+7. Use placeholder text where needed.
+8. Return a clean, well-formatted HTML structure.
 
-ONLY RETURN HTML STRUCTURE WITHOUT <html> or <head> TAGS.`;
+DO NOT use markdown formatting.
+DO NOT wrap the response in triple backticks or code fences.
+Return only raw HTML without any markdown symbols.`;
 
 export const structureAgent: AgentFunction = async (context: AgentContext) => {
   try {

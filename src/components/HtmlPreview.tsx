@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { debugLog } from "@/utils/debugLog";
 
@@ -10,9 +11,21 @@ interface HtmlPreviewProps {
 const HtmlPreview: React.FC<HtmlPreviewProps> = ({ htmlContent, cssContent = '', className = '' }) => {
   debugLog("✅ HtmlPreview", "Rendering HTML content", htmlContent.length);
 
-  // If htmlContent already contains a complete HTML document, use it directly
-  // Otherwise, wrap it in a complete HTML structure
-  const isCompleteHtml = htmlContent.includes('<!DOCTYPE html>') || htmlContent.includes('<html');
+  // Clean the HTML content to ensure it's a proper fragment
+  const cleanHtml = htmlContent
+    .trim()
+    .replace(/^```html\s*/g, '')
+    .replace(/```\s*$/g, '')
+    .replace(/<!DOCTYPE[^>]*>/gi, '')
+    .replace(/<html[^>]*>/gi, '')
+    .replace(/<\/html>/gi, '')
+    .replace(/<head[^>]*>[\s\S]*?<\/head>/gi, '')
+    .replace(/<body[^>]*>/gi, '')
+    .replace(/<\/body>/gi, '')
+    .trim();
+
+  // Check if we have a complete HTML document or just fragments
+  const isCompleteHtml = htmlContent.includes('<!DOCTYPE html>');
   
   const fullHtml = isCompleteHtml ? htmlContent : `
     <!DOCTYPE html>
@@ -21,10 +34,31 @@ const HtmlPreview: React.FC<HtmlPreviewProps> = ({ htmlContent, cssContent = '',
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Preview</title>
-        <style>${cssContent}</style>
+        <style>
+          * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+          }
+          
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #fff;
+          }
+          
+          .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+          }
+          
+          ${cssContent}
+        </style>
       </head>
       <body>
-        ${htmlContent}
+        ${cleanHtml}
       </body>
     </html>
   `;

@@ -32,6 +32,19 @@ export const finalizationAgent = async (
   const firstPageName = firstPage?.name || "home";
   let pageHtml = htmlMap[firstPageName] || "<main>Conteúdo não disponível</main>";
 
+  // Clean any potential markdown or unwanted tags from the HTML
+  pageHtml = pageHtml
+    .trim()
+    .replace(/^```html\s*/g, '')
+    .replace(/```\s*$/g, '')
+    .replace(/<!DOCTYPE[^>]*>/gi, '')
+    .replace(/<html[^>]*>/gi, '')
+    .replace(/<\/html>/gi, '')
+    .replace(/<head[^>]*>[\s\S]*?<\/head>/gi, '')
+    .replace(/<body[^>]*>/gi, '')
+    .replace(/<\/body>/gi, '')
+    .trim();
+
   pageHtml = injectContentIntoHTML(pageHtml, content);
 
   debugLog("🧬 finalizationAgent - HTML com conteúdo injetado", pageHtml);
@@ -217,7 +230,7 @@ export const finalizationAgent = async (
 </html>`;
 
   return {
-    html_code: fullHtml, // Return complete HTML document for preview
+    html_code: fullHtml,
     css,
     files: [
       {

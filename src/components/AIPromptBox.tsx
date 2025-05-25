@@ -9,9 +9,10 @@ import { Zap, MessageCircle, Settings } from 'lucide-react';
 import { openAIService, OpenAIModel } from '@/services/openai-service';
 import ApiKeyModal from './ApiKeyModal';
 import HtmlPreview from './HtmlPreview';
-import { runAgentPipeline } from '@/agents/orchestrator';
+import { plannerAgent, orchestrator } from '@/lib/agents'
 import { Progress } from '@/components/ui/progress';
 import { env, validateEnv } from '@/config/env';
+import { debugLog } from "@/utils/debugLog";
 
 interface AIPromptBoxProps {
   className?: string;

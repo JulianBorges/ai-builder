@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { debugLog } from "@/utils/debugLog";
 
 interface HtmlPreviewProps {
@@ -8,48 +8,33 @@ interface HtmlPreviewProps {
 }
 
 const HtmlPreview: React.FC<HtmlPreviewProps> = ({ htmlContent, cssContent = '', className = '' }) => {
-  const iframeRef = useRef<HTMLIFrameElement>(null);
+  debugLog("✅ HtmlPreview", "Rendering HTML content", { htmlLength: htmlContent.length });
 
-  useEffect(() => {
-    const iframe = iframeRef.current;
-    if (!iframe) return;
-
-    const handleLoad = () => {
-      debugLog("✅ HtmlPreview", "Preview iframe carregado com sucesso");
-
-      const iframeDocument = iframe.contentDocument || iframe.contentWindow?.document;
-      if (!iframeDocument) return;
-
-      const fullHtml = `
-        <!DOCTYPE html>
-        <html lang="en">
-          <head>
-            <meta charset="UTF-8" />
-            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-            <title>Preview</title>
-            <style>${cssContent}</style>
-          </head>
-          <body>
-            ${htmlContent}
-          </body>
-        </html>
-      `;
-
-      iframeDocument.open();
-      iframeDocument.write(fullHtml);
-      iframeDocument.close();
-    };
-
-    // Aguardar carregamento seguro do iframe
-    iframe.onload = handleLoad;
-  }, [htmlContent, cssContent]);
+  // If htmlContent already contains a complete HTML document, use it directly
+  // Otherwise, wrap it in a complete HTML structure
+  const isCompleteHtml = htmlContent.includes('<!DOCTYPE html>') || htmlContent.includes('<html');
+  
+  const fullHtml = isCompleteHtml ? htmlContent : `
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Preview</title>
+        <style>${cssContent}</style>
+      </head>
+      <body>
+        ${htmlContent}
+      </body>
+    </html>
+  `;
 
   return (
     <iframe
-      ref={iframeRef}
       title="HTML Preview"
+      srcDoc={fullHtml}
       className={`w-full h-full border-0 ${className}`}
-      sandbox="allow-scripts"
+      sandbox="allow-scripts allow-same-origin"
     />
   );
 };

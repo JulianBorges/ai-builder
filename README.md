@@ -1,73 +1,71 @@
-# Welcome to your Lovable project
+# AI Website Builder – v5
 
-## Project info
+Construtor de sites com inteligência artificial inspirado no Vercel v0 e Lovable, com geração modular de páginas, preview em tempo real e salvamento no Supabase.
 
-**URL**: https://lovable.dev/projects/d5d794a0-bc8f-4ef3-87a0-36dbcb3cc0a2
+---
 
-## How can I edit this code?
+## 📌 O que este projeto faz
 
-There are several ways of editing your application.
+Este projeto transforma um prompt do usuário em um site completo, funcional e responsivo utilizando agentes especializados. Ele simula o funcionamento de ferramentas como Lovable e Vercel v0, oferecendo:
 
-**Use Lovable**
+- Geração de múltiplas páginas
+- Preview em tempo real via iframe
+- Histórico de versões
+- Armazenamento de arquivos no Supabase
+- Modularidade com agentes IA por função
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/d5d794a0-bc8f-4ef3-87a0-36dbcb3cc0a2) and start prompting.
+---
 
-Changes made via Lovable will be committed automatically to this repo.
+## 🧠 Arquitetura baseada em agentes
 
-**Use your preferred IDE**
+### 🔧 Agentes implementados:
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- `plannerAgent`: Gera o plano inicial de páginas, componentes e estilos
+- `structureAgent`: Gera HTML semântico da estrutura
+- `contentAgent`: Preenche o conteúdo das seções
+- `designAgent`: Aplica CSS com design moderno e responsivo
+- `interactionsAgent`: Adiciona JS para interações
+- `seoAgent`: Insere metatags e otimizações para buscadores
+- `finalizationAgent`: Junta tudo e retorna HTML, CSS, JS e arquivos
+- `orchestrator`: Coordena todos os agentes acima
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+---
 
-Follow these steps:
+## ⚙️ Tecnologias
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+- Vite + React + TypeScript
+- TailwindCSS + shadcn/ui
+- Supabase (PostgreSQL)
+- OpenAI GPT-4o e GPT-4o-mini
+- Preview com `<iframe srcdoc>`
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+---
 
-# Step 3: Install the necessary dependencies.
-npm i
+## 📁 Estrutura do projeto
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+src/
+├── lib/agents/ → Todos os agentes de geração
+├── components/ → UI da dashboard (input, preview, ações)
+├── pages/ → Home e Dashboard
+├── services/ → openai-service.ts
+├── config/ → supabase.ts, salvador.ts
+├── utils/ → debugLog.ts
+
+---
+
+## 🚧 O que precisa ser corrigido
+
+> O sistema já está funcionando, os agentes estão conectados e o conteúdo é gerado com sucesso.  
+> No entanto, **o HTML gerado não está sendo exibido corretamente no preview.**
+
+O problema pode estar em:
+- Como o conteúdo está sendo passado para o `iframe` do `PreviewPanel`
+- Ou no `finalizationAgent`, se estiver retornando apenas o `<body>` em vez de um HTML completo
+
+---
+
+## ▶️ Como rodar localmente
+
+```bash
+npm install
 npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/d5d794a0-bc8f-4ef3-87a0-36dbcb3cc0a2) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)

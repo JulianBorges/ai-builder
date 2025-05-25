@@ -1,3 +1,4 @@
+
 import { AgentContext, AgentFunction } from "./types";
 import { openAIService } from "@/services/openai-service";
 import { debugLog } from "@/utils/debugLog";
@@ -35,11 +36,13 @@ export const designAgent: AgentFunction = async (context: AgentContext) => {
     debugLog("🎨 CSS gerado", result);
     
     return {
+      content: result,
       css: result
     };
   } catch (error) {
     debugLog("❌ Design Agent Error", error);
     return {
+      content: '',
       css: '',
       error: error instanceof Error ? error.message : 'Unknown error in design agent'
     };

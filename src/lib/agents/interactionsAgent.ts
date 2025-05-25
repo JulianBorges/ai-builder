@@ -1,3 +1,4 @@
+
 import { AgentContext, AgentFunction } from "./types";
 import { openAIService } from "@/services/openai-service";
 import { debugLog } from "@/utils/debugLog";
@@ -35,14 +36,15 @@ export const interactionsAgent: AgentFunction = async (context: AgentContext) =>
     debugLog("⚙️ JS Interações", result);
     
     return {
+      content: result,
       javascript: result
     };
   } catch (error) {
     debugLog("❌ Interactions Agent Error", error);
     return {
+      content: '',
       javascript: '',
       error: error instanceof Error ? error.message : 'Unknown error in interactions agent'
     };
   }
 };
-

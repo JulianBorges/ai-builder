@@ -1,3 +1,4 @@
+
 import { AgentContext, GenerationPlan, OrchestrationResult, ProgressCallback } from "./types";
 import { debugLog } from "@/utils/debugLog";
 
@@ -28,9 +29,9 @@ export const orchestrator = async (
     onProgress?.("structure", ++currentStep, totalSteps);
     const { structureAgent } = await import('./structureAgent');
     const structure = await structureAgent({ ...context, page });
-    if (structure.html && typeof structure.html === "string" && structure.html.includes("<section")) {
-      result.html[page.name] = structure.html;
-      debugLog("📄 Estrutura recebida do structureAgent", structure.html);
+    if (structure.content && typeof structure.content === "string" && structure.content.includes("<section")) {
+      result.html[page.name] = structure.content;
+      debugLog("📄 Estrutura recebida do structureAgent", structure.content);
     } else {
       debugLog("❌ Estrutura vazia ou inválida recebida do structureAgent", structure);
       result.html[page.name] = "<main>Conteúdo não disponível</main>";

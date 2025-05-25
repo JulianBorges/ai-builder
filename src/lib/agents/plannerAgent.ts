@@ -67,8 +67,8 @@ export const plannerAgent = async (context: AgentContext): Promise<AgentResponse
   } catch (error) {
     debugLog("❌ Erro ao interpretar JSON do planner", error);
     return {
+      content: undefined,
       error: error instanceof Error ? error.message : "Unknown error parsing planner result"
     };
   }
 };
-

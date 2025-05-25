@@ -1,8 +1,8 @@
+
 import { AgentContext, AgentFunction } from "./types";
 import { openAIService } from "@/services/openai-service";
 import { debugLog } from "@/utils/debugLog";
 import { convertContentJsonToHtml } from "@/utils/JsonToHtml";
-
 
 const SYSTEM_PROMPT = `You are a website content specialist. Your task is to create engaging, 
 relevant content to fill a pre-existing HTML structure.
@@ -43,7 +43,7 @@ export const contentAgent: AgentFunction = async (context: AgentContext) => {
     } catch (e) {
       debugLog("❌ Erro ao fazer parse do contentAgent", e);
       return {
-        content: {},
+        content: "Error processing content",
         html: "<section><p>Erro ao processar conteúdo. JSON inválido retornado pela IA.</p></section>",
         error: e instanceof Error ? e.message : "Erro desconhecido no parse"
       };
@@ -52,13 +52,13 @@ export const contentAgent: AgentFunction = async (context: AgentContext) => {
     debugLog("📚 Content JSON", parsed);
 
     return {
-      content: parsed,
+      content: JSON.stringify(parsed),
       html: convertContentJsonToHtml(parsed)
     };
   } catch (error) {
     debugLog("❌ Content Agent Error", error);
     return {
-      content: {},
+      content: "Error in content generation",
       error: error instanceof Error ? error.message : "Unknown error in content agent"
     };
   }

@@ -13,8 +13,11 @@ export type AgentContext = {
 };
 
 export type AgentResponse<T = string> = {
-  content: T;
+  content?: T;
   error?: string;
+  html?: string | Record<string, string>;
+  css?: string;
+  javascript?: string;
 };
 
 export type AgentFunction<T = string> = (context: AgentContext) => Promise<AgentResponse<T>>;
@@ -86,8 +89,8 @@ export type FinalizationResult = {
   agent_outputs: Record<string, any>;
 };
 
-export type AgentProgressCallback = (current: number, total: number, step: string) => void;
 export type ProgressCallback = (step: string, current: number, total: number, partialHtml?: any) => void;
+export type AgentProgressCallback = (current: number, total: number, step: string) => void;
 
 export type AgentOutput = {
   structure?: string;

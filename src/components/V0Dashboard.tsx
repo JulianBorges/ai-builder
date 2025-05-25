@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import VersionSidebar from './VersionSidebar';
 import ActionBar from './ActionBar';
@@ -25,21 +24,11 @@ export const V0Dashboard = ({
   const [generatedCode, setGeneratedCode] = useState<string>('');
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
 
-  const handleSubmitPrompt = async (prompt: string) => {
-    if (!prompt.trim()) return;
-    
-    setIsGenerating(true);
-    try {
-      await openAIService.generateWebsiteIdea(prompt, 'gpt-4o-mini', (partialText) => {
-        setGeneratedCode(partialText);
-      });
-      
-      toast.success('Generation complete!');
-    } catch (error) {
-      console.error('Error generating site:', error);
-      toast.error('Failed to generate content. Please try again.');
-    } finally {
-      setIsGenerating(false);
+  const handleHtmlUpdate = (html: any) => {
+    if (typeof html === 'object' && html.home) {
+      setGeneratedCode(html.home);
+    } else if (typeof html === 'string') {
+      setGeneratedCode(html);
     }
   };
 
@@ -76,7 +65,7 @@ export const V0Dashboard = ({
           {/* Left Panel - AI Prompt */}
           <div className="w-1/4 border-r border-border overflow-y-auto">
             <AIPromptPanel 
-              onSubmitPrompt={handleSubmitPrompt}
+              onHtmlUpdate={handleHtmlUpdate}
               isGenerating={isGenerating}
             />
           </div>
